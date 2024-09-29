@@ -44,11 +44,11 @@ async function run() {
     })
 
     //get all notes from database
-    app.get("/all-notes",async(req,res)=>{
-        const notes= noteCollections.find();
-        const result=await notes.toArray();
-        res.send(result);
-    })
+    //app.get("/all-notes",async(req,res)=>{
+    //    const notes= noteCollections.find();
+    //    const result=await notes.toArray();
+    //    res.send(result);
+    //})
 
     //update notes data
     app.patch("/notes/:id",async(req,res)=>{
@@ -77,11 +77,9 @@ async function run() {
     //find by category
     app.get("/all-notes",async(req,res)=>{
         let query={};
-        //console.log(query);
         if(req.query?.category){
             query={category:req.query.category};
         }
-        console.log(query);
         const result=await noteCollections.find(query).toArray();
         res.send(result);
     })
