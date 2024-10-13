@@ -13,6 +13,10 @@ import {
   import UploadNotes from "../dashboard/UploadNotes";
   import ManageNotes from "../dashboard/ManageNotes";
   import EditNotes from "../dashboard/EditNotes";
+  import Signup from "../components/Signup";
+  import Login from "../components/Login";
+  import PrivateRoute from "../PrivateRoute/PrivateRoute";
+  import Logout from "../components/Logout";
   
   const router = createBrowserRouter([
     {
@@ -48,7 +52,7 @@ import {
       children: [
         {
           path: '/admin/dashboard',
-          element: <Dashboard/>,
+          element: <PrivateRoute><Dashboard/></PrivateRoute>,
         },
         {
           path: '/admin/dashboard/upload',
@@ -63,8 +67,16 @@ import {
           element: <EditNotes/>,
           loader: ({ params }) => fetch(`http://localhost:5000/notes/${params.id}`)
         }
-
       ],
+    },{
+      path: "sign-up",
+      element: <Signup/>,
+    },{
+      path: "/login",
+      element: <Login/>,
+    },{
+      path: "logout",
+      element: <Logout/>,
     }
   ]);
   

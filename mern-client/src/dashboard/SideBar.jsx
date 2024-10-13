@@ -1,17 +1,22 @@
 import { Sidebar } from "flowbite-react";
 import { HiArrowSmRight, HiChartPie, HiInbox, HiOutlineCloudUpload, HiShoppingBag, HiSupport, HiTable, HiUser, HiViewBoards } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import Rect,{useContext} from "react"
+import { AuthContext } from "../contects/AuthProvider";
 import userImg from "../assets/profile.jpg"
 
 const SideBar = () => {
+  const {user}=useContext(AuthContext);
+  console.log(user);
   return (
     <Sidebar aria-label="Sidebar navigation">
         <Sidebar.Logo
-        href="#"
-        img={userImg}
+        href="/"
+        img={user?.photoURL}
         imgAlt="Flowbite logo"
+        className="w-16 h-16"
        >
-        <p>Flowbite</p>
+        <p>{user?.displayName || "Demo User"}</p>
        </Sidebar.Logo>
 
       <Sidebar.Items>

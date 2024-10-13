@@ -178,7 +178,7 @@ const UploadNotes = () => {
 
       </form>
     </div>
-  );
-};
+  )
+}
 
 export default UploadNotes;
