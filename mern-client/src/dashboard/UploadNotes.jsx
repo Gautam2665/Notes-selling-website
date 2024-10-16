@@ -15,50 +15,40 @@ const UploadNotes = () => {
     "Python Programming",
     "Web Development",
     "CFA (Chartered Financial Analyst)"
-
-
-
-
-
-
   ];
 
   const [selectedNotesCategory, setSelectedNotesCategory] = useState(notesCategory[0]);
 
   const handleChangeSelectedValue = (event) => {
-    console.log(event.target.value);
     setSelectedNotesCategory(event.target.value);
   }
 
-
   const handleNotesSubmit = (event) => {
     event.preventDefault();
-    const form=event.target;
+    const form = event.target;
 
-    const notesTitle=form.notesTitle.value;
-    const creator=form.creator.value;
-    const imageURL=form.imageURL.value;
-    const category=form.categoryName.value;
-    const notesDescription=form.notesDescription.value;
-    const notesPDFURL=form.notesPDFURL.value;
+    const notesTitle = form.notesTitle.value;
+    const creator = form.creator.value;
+    const imageURL = form.imageURL.value;
+    const category = form.categoryName.value;
+    const notesDescription = form.notesDescription.value;
+    const notesPDFURL = form.notesPDFURL.value;
+    const price = form.price.value; 
 
-    const notesObj={
-      notesTitle, creator, imageURL, category, notesDescription, notesPDFURL
+    const notesObj = {
+      notesTitle, creator, imageURL, category, notesDescription, notesPDFURL, price 
     }
 
     console.log(notesObj);
 
     fetch("http://localhost:5000/upload-notes", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(notesObj)
-
-    }).then(res =>res.json()).then(data=>{
-      //console.log(data);
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(notesObj)
+    }).then(res => res.json()).then(data => {
       alert("Notes uploaded successfully");
       form.reset();
     });
-
   }
 
   return (
@@ -101,8 +91,7 @@ const UploadNotes = () => {
           </div>
         </div>
 
-
-        {/* second row*/}
+        {/* second row */}
         <div className='flex gap-8'>
           <div className='lg:w-1/2'>
             <div className="mb-2 block">
@@ -120,9 +109,9 @@ const UploadNotes = () => {
             />
           </div>
 
-          {/*category*/ }
+          {/* category */}
           <div className='lg:w-1/2'>
-          <div className="mb-2 block">
+            <div className="mb-2 block">
               <Label 
                 htmlFor="inputState" 
                 value="Notes Category" 
@@ -134,12 +123,10 @@ const UploadNotes = () => {
                 notesCategory.map((option) => <option key={option} value={option}>{option}</option>)
               }
             </Select>
-
-
           </div>
         </div>
 
-        {/*notes description*/}
+        {/* notes description */}
         <div>
           <div className="mb-2 block">
             <Label 
@@ -157,9 +144,9 @@ const UploadNotes = () => {
           />
         </div>
 
-        {/*notes PDF link*/ }
+        {/* notes PDF link */}
         <div>
-        <div className="mb-2 block">
+          <div className="mb-2 block">
             <Label 
               htmlFor="notesPDFURL" 
               value="Notes PDF URL" 
@@ -168,9 +155,27 @@ const UploadNotes = () => {
           <TextInput 
             id="notesPDFURL"
             name='notesPDFURL'
-            placeholder='Notes PDF url'
+            placeholder='Notes PDF URL'
             required
             type='text'
+          />
+        </div>
+
+        {/* price field */}
+        <div>
+          <div className="mb-2 block">
+            <Label 
+              htmlFor="price" 
+              value="Price" 
+            />
+          </div>
+          <TextInput 
+            id="price"
+            name='price'
+            placeholder='Enter the price'
+            required
+            type='number'
+            step="0.01"
           />
         </div>
 

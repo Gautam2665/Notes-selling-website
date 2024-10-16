@@ -60,7 +60,7 @@ const NotesCards = ({ headline, notes }) => {
                         <p>{note.creator}</p>
                     </div>
                     <div>
-                        <p>$10.00</p>
+                        <p>${note.price || '10.00'}</p>
                     </div>
                   </div>
                 </Link>

@@ -43,17 +43,6 @@ const SideBar = () => {
             Log Out
           </Sidebar.Item>
         </Sidebar.ItemGroup>
-        <Sidebar.ItemGroup>
-          <Sidebar.Item as={Link} to="/upgrade" icon={HiChartPie}>
-            Upgrade to Pro
-          </Sidebar.Item>
-          <Sidebar.Item as={Link} to="/documentation" icon={HiViewBoards}>
-            Documentation
-          </Sidebar.Item>
-          <Sidebar.Item as={Link} to="/help" icon={HiSupport}>
-            Help
-          </Sidebar.Item>
-        </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>
   );

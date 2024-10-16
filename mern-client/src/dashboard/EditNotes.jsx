@@ -4,8 +4,8 @@ import { Select, Button, Label, TextInput, Textarea } from 'flowbite-react';
 
 const EditNotes = () => {
   const { id } = useParams();
-  const {notesTitle, creator, imageURL, category, notesDescription, notesPDFURL}=useLoaderData();
-
+  const { notesTitle, creator, imageURL, category, notesDescription, notesPDFURL, price } = useLoaderData(); // Added price
+  
   const notesCategory = [
     "MU (Mumbai University)",
     "SPPU (Savitribai Phule Pune University)",
@@ -19,11 +19,6 @@ const EditNotes = () => {
     "Python Programming",
     "Web Development",
     "CFA (Chartered Financial Analyst)"
-
-
-
-
-
   ];
 
   const [selectedNotesCategory, setSelectedNotesCategory] = useState(notesCategory[0]);
@@ -33,41 +28,38 @@ const EditNotes = () => {
     setSelectedNotesCategory(event.target.value);
   }
 
-
   const handleUpdate = (event) => {
     event.preventDefault();
-    const form=event.target;
+    const form = event.target;
 
-    const notesTitle=form.notesTitle.value;
-    const creator=form.creator.value;
-    const imageURL=form.imageURL.value;
-    const category=form.categoryName.value;
-    const notesDescription=form.notesDescription.value;
-    const notesPDFURL=form.notesPDFURL.value;
+    const notesTitle = form.notesTitle.value;
+    const creator = form.creator.value;
+    const imageURL = form.imageURL.value;
+    const category = form.categoryName.value;
+    const notesDescription = form.notesDescription.value;
+    const notesPDFURL = form.notesPDFURL.value;
+    const price = form.price.value;  // Get price value
 
-    const updateNotesObj={
-      notesTitle, creator, imageURL, category, notesDescription, notesPDFURL
+    const updateNotesObj = {
+      notesTitle, creator, imageURL, category, notesDescription, notesPDFURL, price
     }
 
-    fetch(`http://localhost:5000/notes/${id}`,{
+    fetch(`http://localhost:5000/notes/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateNotesObj)
-    }).then(res =>res.json()).then(data=>{
-      //console.log(data);
+    }).then(res => res.json()).then(data => {
       alert("Notes updated successfully");
       form.reset();
     });
-
-  
   }
 
   return (
     <div className='px-4 my-12'>
-      <h2 className='mb-8 text-3xl font-bold'>Update notes data</h2>
+      <h2 className='mb-8 text-3xl font-bold'>Update Notes Data</h2>
 
       <form onSubmit={handleUpdate} className="flex lg:w-[1180px] flex-col flex-wrap gap-4">
-        {/* first row title */}
+        {/* First Row: Title and Creator */}
         <div className='flex gap-8'>
           <div className='lg:w-1/2'>
             <div className="mb-2 block">
@@ -104,8 +96,7 @@ const EditNotes = () => {
           </div>
         </div>
 
-
-        {/* second row*/}
+        {/* Second Row: Image URL and Category */}
         <div className='flex gap-8'>
           <div className='lg:w-1/2'>
             <div className="mb-2 block">
@@ -124,9 +115,8 @@ const EditNotes = () => {
             />
           </div>
 
-          {/*category*/ }
           <div className='lg:w-1/2'>
-          <div className="mb-2 block">
+            <div className="mb-2 block">
               <Label 
                 htmlFor="inputState" 
                 value="Notes Category" 
@@ -138,12 +128,10 @@ const EditNotes = () => {
                 notesCategory.map((option) => <option key={option} value={option}>{option}</option>)
               }
             </Select>
-
-
           </div>
         </div>
 
-        {/*notes description*/}
+        {/* Notes Description */}
         <div>
           <div className="mb-2 block">
             <Label 
@@ -162,9 +150,9 @@ const EditNotes = () => {
           />
         </div>
 
-        {/*notes PDF link*/ }
+        {/* Notes PDF URL */}
         <div>
-        <div className="mb-2 block">
+          <div className="mb-2 block">
             <Label 
               htmlFor="notesPDFURL" 
               value="Notes PDF URL" 
@@ -180,11 +168,32 @@ const EditNotes = () => {
           />
         </div>
 
-        <Button type='submit'  className='bg-blue-700 text-white px-6 py-2 font-medium hover:bg-black transition-all ease-in duration-200 flex justify-center items-center'>Update Notes</Button>
+        {/* Price Section */}
+        <div>
+          <div className="mb-2 block">
+            <Label 
+              htmlFor="price" 
+              value="Notes Price ($)" 
+            />
+          </div>
+          <TextInput 
+            id="price"
+            name='price'
+            placeholder='Enter the price for the notes'
+            required
+            type='number'
+            min='0'
+            defaultValue={price || '10.00'} // Fallback default price
+          />
+        </div>
 
+        {/* Submit Button */}
+        <Button type='submit' className='bg-blue-700 text-white px-6 py-2 font-medium hover:bg-black transition-all ease-in duration-200 flex justify-center items-center'>
+          Update Notes
+        </Button>
       </form>
     </div>
   )
 }
 
-export default EditNotes
+export default EditNotes;

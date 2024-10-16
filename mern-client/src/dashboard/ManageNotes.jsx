@@ -1,87 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import { Table } from 'flowbite-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTable } from 'react-table';
 import { Link } from 'react-router-dom'; // Import Link for navigation
 
 const ManageNotes = () => {
   const [allNotes, setAllNotes] = useState([]);
+
   useEffect(() => {
-    fetch('http://localhost:5000/all-notes').then((res) => res.json()).then((data) => setAllNotes(data));
+    fetch('http://localhost:5000/all-notes')
+      .then((res) => res.json())
+      .then((data) => setAllNotes(data));
   }, []);
 
-  //delete a note
+  // delete a note
   const handleDelete = (id) => {
     console.log(id);
     fetch(`http://localhost:5000/notes/${id}`, {
       method: 'DELETE',
-    }).then(res => res.json()).then(data=> {
-      alert("Deleted successfully")
-        //setAllNotes(data)
     })
-  }
+      .then((res) => res.json())
+      .then((data) => {
+        alert('Deleted successfully');
+        setAllNotes((prev) => prev.filter((note) => note._id !== id)); // Update the UI after deletion
+      });
+  };
+
+  // Columns for React Table
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'No',
+        accessor: 'index', // will be manually added below
+      },
+      {
+        Header: 'Notes Name',
+        accessor: 'notesTitle',
+      },
+      {
+        Header: 'Creator Name',
+        accessor: 'creator',
+      },
+      {
+        Header: 'Category',
+        accessor: 'category',
+      },
+      {
+        Header: 'Prize',
+        accessor: 'price',
+        Cell: ({ value }) => `$${value || '10.00'}`,
+      },
+      {
+        Header: 'Edit or Manage',
+        accessor: '_id',
+        Cell: ({ value }) => (
+          <div>
+            <Link
+              className='font-medium text-cyan-600 hover:underline dark:text-cyan-500 mr-5'
+              to={`/admin/dashboard/edit-notes/${value}`}
+            >
+              Edit
+            </Link>
+            <button
+              onClick={() => handleDelete(value)}
+              className='bg-red-600 px-4 py-1 font-semibold text-white rounded-sm hover:bg-sky-600 ml-2'
+            >
+              Delete
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [] // memoize the columns
+  );
+
+  // Add index to each note
+  const data = useMemo(
+    () =>
+      allNotes.map((note, index) => ({
+        ...note,
+        index: index + 1,
+      })),
+    [allNotes]
+  );
+
+  // Using React Table hook
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable({ columns, data });
+
   return (
     <div className='px-4 my-12'>
       <h2 className='mb-8 text-3xl font-bold'>Manage Notes</h2>
 
       {/* Table for notes data */}
-      <Table className='lg:w-[1180px]'>
-    <Table.Head>
-      <Table.HeadCell>
-        No
-      </Table.HeadCell>
-      <Table.HeadCell>
-        Notes Name
-      </Table.HeadCell>
-      <Table.HeadCell>
-        Creator Name
-      </Table.HeadCell>
-      <Table.HeadCell>
-        Category
-      </Table.HeadCell>
-      <Table.HeadCell>
-        Prize
-      </Table.HeadCell>
-      <Table.HeadCell>
-        <span>
-          Edit or Manage
-        </span>
-      </Table.HeadCell>
-    </Table.Head>
-      {
-        allNotes.map((note, index) => <Table.Body className='divide-y' key={note._id}>
-                  <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-            {index + 1}
-          </Table.Cell>
-          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-            {note.notesTitle}
-          </Table.Cell>
-          <Table.Cell>
-            {note.creator}
-          </Table.Cell>
-          <Table.Cell>
-            {note.category}
-          </Table.Cell>
-          <Table.Cell>
-            ${note.price || '10.00'}
-          </Table.Cell>
-          <Table.Cell>
-            <Link 
-              className="font-medium text-cyan-600 hover:underline dark:text-cyan-500 mr-5" 
-              to={`/admin/dashboard/edit-notes/${note._id}`}
+      <table
+        {...getTableProps()}
+        className='lg:w-[1180px] table-auto border-collapse border border-gray-300'
+      >
+        <thead>
+          {headerGroups.map((headerGroup) => (
+            <tr
+              {...headerGroup.getHeaderGroupProps()}
+              className='border-b border-gray-300'
             >
-                Edit
-            </Link>
-            <button onClick={() => handleDelete(note._id)} className='bg-red-600 px-4 py-1 font-semibold text-white rounded-sm
-            hover:bg-sky-600 ml-2'>Delete</button>
-          </Table.Cell>
-        </Table.Row>
-        </Table.Body>)
-      }
-
-    </Table>
-
+              {headerGroup.headers.map((column) => (
+                <th
+                  {...column.getHeaderProps()}
+                  className='border p-2 text-left bg-gray-100'
+                >
+                  {column.render('Header')}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row) => {
+            prepareRow(row);
+            return (
+              <tr {...row.getRowProps()} className='border-b border-gray-300'>
+                {row.cells.map((cell) => (
+                  <td {...cell.getCellProps()} className='border p-2'>
+                    {cell.render('Cell')}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
-  )
-}
+  );
+};
 
 export default ManageNotes;
