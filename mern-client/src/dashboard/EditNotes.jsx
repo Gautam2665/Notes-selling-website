@@ -1,30 +1,16 @@
-import React, { useState } from 'react';
-import { useLoaderData, useParams } from 'react-router-dom'
+import React, { useState, useContext, useEffect } from 'react';
+import { useLoaderData, useParams } from 'react-router-dom';
 import { Select, Button, Label, TextInput, Textarea } from 'flowbite-react';
+import { CategoryContext } from '../context/CategoryContext'; // Adjust the import path based on your folder structure
 
 const EditNotes = () => {
   const { id } = useParams();
-  const { notesTitle, creator, imageURL, category, notesDescription, notesPDFURL, price } = useLoaderData(); // Added price
+  const { notesTitle, creator, imageURL, category, notesDescription, notesPDFURL, price } = useLoaderData();
   
-  const notesCategory = [
-    "MU (Mumbai University)",
-    "SPPU (Savitribai Phule Pune University)",
-    "IIT JEE Mains",
-    "NEET",
-    "Physics",
-    "Mathematics",
-    "Computer Science",
-    "UPSC Civil Services",
-    "GATE (General Aptitude Test for Engineers)",
-    "Python Programming",
-    "Web Development",
-    "CFA (Chartered Financial Analyst)"
-  ];
-
-  const [selectedNotesCategory, setSelectedNotesCategory] = useState(notesCategory[0]);
+  const { categories } = useContext(CategoryContext); // Get categories from context
+  const [selectedNotesCategory, setSelectedNotesCategory] = useState(category); // Initialize with existing category
 
   const handleChangeSelectedValue = (event) => {
-    console.log(event.target.value);
     setSelectedNotesCategory(event.target.value);
   }
 
@@ -35,20 +21,27 @@ const EditNotes = () => {
     const notesTitle = form.notesTitle.value;
     const creator = form.creator.value;
     const imageURL = form.imageURL.value;
-    const category = form.categoryName.value;
     const notesDescription = form.notesDescription.value;
     const notesPDFURL = form.notesPDFURL.value;
-    const price = form.price.value;  // Get price value
+    const price = form.price.value;
 
     const updateNotesObj = {
-      notesTitle, creator, imageURL, category, notesDescription, notesPDFURL, price
+      notesTitle,
+      creator,
+      imageURL,
+      category: selectedNotesCategory, // Use selected category
+      notesDescription,
+      notesPDFURL,
+      price,
     }
 
     fetch(`http://localhost:5000/notes/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updateNotesObj)
-    }).then(res => res.json()).then(data => {
+      body: JSON.stringify(updateNotesObj),
+    })
+    .then(res => res.json())
+    .then(data => {
       alert("Notes updated successfully");
       form.reset();
     });
@@ -63,10 +56,7 @@ const EditNotes = () => {
         <div className='flex gap-8'>
           <div className='lg:w-1/2'>
             <div className="mb-2 block">
-              <Label 
-                htmlFor="notesTitle" 
-                value="Notes Title" 
-              />
+              <Label htmlFor="notesTitle" value="Notes Title" />
             </div>
             <TextInput 
               id="notesTitle"
@@ -80,10 +70,7 @@ const EditNotes = () => {
 
           <div className='lg:w-1/2'>
             <div className="mb-2 block">
-              <Label 
-                htmlFor="creator" 
-                value="Notes Creator" 
-              />
+              <Label htmlFor="creator" value="Notes Creator" />
             </div>
             <TextInput 
               id="creator"
@@ -100,10 +87,7 @@ const EditNotes = () => {
         <div className='flex gap-8'>
           <div className='lg:w-1/2'>
             <div className="mb-2 block">
-              <Label 
-                htmlFor="imageURL" 
-                value="Notes Image URL" 
-              />
+              <Label htmlFor="imageURL" value="Notes Image URL" />
             </div>
             <TextInput 
               id="imageURL"
@@ -117,16 +101,18 @@ const EditNotes = () => {
 
           <div className='lg:w-1/2'>
             <div className="mb-2 block">
-              <Label 
-                htmlFor="inputState" 
-                value="Notes Category" 
-              />
+              <Label htmlFor="inputState" value="Notes Category" />
             </div> 
-            <Select id='inputState' name='categoryName' className='w-full rounded' value={selectedNotesCategory}
-            onChange={handleChangeSelectedValue}>
-              {
-                notesCategory.map((option) => <option key={option} value={option}>{option}</option>)
-              }
+            <Select 
+              id='inputState' 
+              name='categoryName' 
+              className='w-full rounded' 
+              value={selectedNotesCategory}
+              onChange={handleChangeSelectedValue}
+            >
+              {categories.map((option) => (
+                <option key={option.name} value={option.name}>{option.name}</option>
+              ))}
             </Select>
           </div>
         </div>
@@ -134,10 +120,7 @@ const EditNotes = () => {
         {/* Notes Description */}
         <div>
           <div className="mb-2 block">
-            <Label 
-              htmlFor="notesDescription" 
-              value="Notes Description" 
-            />
+            <Label htmlFor="notesDescription" value="Notes Description" />
           </div>
           <Textarea 
             id="notesDescription"
@@ -153,15 +136,12 @@ const EditNotes = () => {
         {/* Notes PDF URL */}
         <div>
           <div className="mb-2 block">
-            <Label 
-              htmlFor="notesPDFURL" 
-              value="Notes PDF URL" 
-            />
+            <Label htmlFor="notesPDFURL" value="Notes PDF URL" />
           </div>
           <TextInput 
             id="notesPDFURL"
             name='notesPDFURL'
-            placeholder='Notes PDF url'
+            placeholder='Notes PDF URL'
             required
             type='text'
             defaultValue={notesPDFURL}
@@ -171,10 +151,7 @@ const EditNotes = () => {
         {/* Price Section */}
         <div>
           <div className="mb-2 block">
-            <Label 
-              htmlFor="price" 
-              value="Notes Price ($)" 
-            />
+            <Label htmlFor="price" value="Notes Price ($)" />
           </div>
           <TextInput 
             id="price"
@@ -183,7 +160,7 @@ const EditNotes = () => {
             required
             type='number'
             min='0'
-            defaultValue={price || '10.00'} // Fallback default price
+            defaultValue={price || '10.00'}
           />
         </div>
 
@@ -193,7 +170,7 @@ const EditNotes = () => {
         </Button>
       </form>
     </div>
-  )
+  );
 }
 
 export default EditNotes;

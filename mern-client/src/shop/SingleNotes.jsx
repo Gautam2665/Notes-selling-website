@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLoaderData } from 'react-router-dom';
 
 const SingleNotes = () => {
     // Destructure all relevant properties from the loader data
     const { _id, notesTitle, imageURL, creator, notesDescription, price } = useLoaderData();
-    
+
+    // Scroll to the top of the page when the component loads
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div className='mt-28 px-4 lg:px-24'>
             <div className='flex flex-col lg:flex-row items-center lg:items-start'>
@@ -13,7 +18,7 @@ const SingleNotes = () => {
                     <img 
                         src={imageURL} 
                         alt={notesTitle} 
-                        className='w-[500px] h-[500px] object-cover rounded-lg shadow-lg'
+                        className='w-[300px] h-auto object-contain rounded-lg shadow-lg' // Maintain aspect ratio and visibility
                     />
                 </div>
 

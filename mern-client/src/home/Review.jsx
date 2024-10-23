@@ -87,8 +87,8 @@ const Review = () => {
                         rounded
                         className='w-10 mb-4'
                     />
-                    <h5 className='text-lg front-medium'>Mark Smith</h5>
-                    <p>CEO, Company Inc.</p>
+                    <h5 className='text-lg front-medium'>Ari May</h5>
+                    <p>HR, Cisco Inc.</p>
                 </div>
             </div>
             
@@ -113,8 +113,8 @@ const Review = () => {
                         rounded
                         className='w-10 mb-4'
                     />
-                    <h5 className='text-lg front-medium'>Mark Smith</h5>
-                    <p>CEO, Company Inc.</p>
+                    <h5 className='text-lg front-medium'>Aleah Castillo</h5>
+                    <p>CEO, GreatLerning Inc.</p>
                 </div>
             </div>
             
@@ -139,8 +139,8 @@ const Review = () => {
                         rounded
                         className='w-10 mb-4'
                     />
-                    <h5 className='text-lg front-medium'>Mark Smith</h5>
-                    <p>CEO, Company Inc.</p>
+                    <h5 className='text-lg front-medium'>Lina Parker</h5>
+                    <p>CEO, CHALO Inc.</p>
                 </div>
             </div>
             
@@ -165,7 +165,7 @@ const Review = () => {
                         rounded
                         className='w-10 mb-4'
                     />
-                    <h5 className='text-lg front-medium'>Mark Smith</h5>
+                    <h5 className='text-lg front-medium'>Jhon Doe</h5>
                     <p>CEO, Company Inc.</p>
                 </div>
             </div>

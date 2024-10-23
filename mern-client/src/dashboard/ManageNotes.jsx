@@ -1,19 +1,24 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { useTable } from 'react-table';
 import { Link } from 'react-router-dom'; // Import Link for navigation
+import { CategoryContext } from '../context/CategoryContext'; // Adjust the import path based on your folder structure
 
 const ManageNotes = () => {
   const [allNotes, setAllNotes] = useState([]);
+  const { categories } = useContext(CategoryContext); // Get categories from context
 
   useEffect(() => {
     fetch('http://localhost:5000/all-notes')
       .then((res) => res.json())
-      .then((data) => setAllNotes(data));
+      .then((data) => {
+        console.log('Notes fetched:', data); // Debugging
+        setAllNotes(data);
+      })
+      .catch((err) => console.error('Error fetching notes:', err));
   }, []);
 
-  // delete a note
+  // Delete a note
   const handleDelete = (id) => {
-    console.log(id);
     fetch(`http://localhost:5000/notes/${id}`, {
       method: 'DELETE',
     })
@@ -22,6 +27,18 @@ const ManageNotes = () => {
         alert('Deleted successfully');
         setAllNotes((prev) => prev.filter((note) => note._id !== id)); // Update the UI after deletion
       });
+  };
+
+  // Helper function to get category name by ID or name
+  const getCategoryNameById = (categoryId) => {
+    const category = categories.find(cat => cat._id === categoryId || cat.name === categoryId); 
+
+    if (category) {
+      return category.name;
+    } else {
+      console.error('Category ID not found:', categoryId); // Debugging
+      return 'Unknown Category'; // Return a default value if not found
+    }
   };
 
   // Columns for React Table
@@ -41,10 +58,11 @@ const ManageNotes = () => {
       },
       {
         Header: 'Category',
-        accessor: 'category',
+        accessor: 'category', // Use category ID
+        Cell: ({ value }) => getCategoryNameById(value), // Display the category name
       },
       {
-        Header: 'Prize',
+        Header: 'Price',
         accessor: 'price',
         Cell: ({ value }) => `$${value || '10.00'}`,
       },
@@ -69,7 +87,7 @@ const ManageNotes = () => {
         ),
       },
     ],
-    [] // memoize the columns
+    [categories] // memoize the columns
   );
 
   // Add index to each note
@@ -96,32 +114,48 @@ const ManageNotes = () => {
         className='lg:w-[1180px] table-auto border-collapse border border-gray-300'
       >
         <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr
-              {...headerGroup.getHeaderGroupProps()}
-              className='border-b border-gray-300'
-            >
-              {headerGroup.headers.map((column) => (
-                <th
-                  {...column.getHeaderProps()}
-                  className='border p-2 text-left bg-gray-100'
-                >
-                  {column.render('Header')}
-                </th>
-              ))}
-            </tr>
-          ))}
+          {headerGroups.map((headerGroup) => {
+            const headerGroupProps = headerGroup.getHeaderGroupProps();
+            const { key, ...restHeaderGroupProps } = headerGroupProps; // Extract key from header group props
+            
+            return (
+              <tr key={key} {...restHeaderGroupProps} className='border-b border-gray-300'>
+                {headerGroup.headers.map((column) => {
+                  const columnProps = column.getHeaderProps();
+                  const { key: columnKey, ...restColumnProps } = columnProps; // Extract key from column props
+
+                  return (
+                    <th
+                      key={columnKey} // Use the key directly for the th element
+                      {...restColumnProps}
+                      className='border p-2 text-left bg-gray-100'
+                    >
+                      {column.render('Header')}
+                    </th>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </thead>
+
         <tbody {...getTableBodyProps()}>
           {rows.map((row) => {
             prepareRow(row);
+            const rowProps = row.getRowProps();
+            const { key, ...restRowProps } = rowProps; // Separate key from row props
+          
             return (
-              <tr {...row.getRowProps()} className='border-b border-gray-300'>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()} className='border p-2'>
-                    {cell.render('Cell')}
-                  </td>
-                ))}
+              <tr key={key} {...restRowProps} className='border-b border-gray-300'>
+                {row.cells.map((cell) => {
+                  const cellProps = cell.getCellProps();
+                  const { key: cellKey, ...restCellProps } = cellProps; // Separate key from cell props
+                  return (
+                    <td key={cellKey} {...restCellProps} className='border p-2'>
+                      {cell.render('Cell')}
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}

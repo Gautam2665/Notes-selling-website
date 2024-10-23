@@ -1,55 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Select, Button, Label, TextInput, Textarea } from 'flowbite-react';
 
 const UploadNotes = () => {
-  const notesCategory = [
-    "MU (Mumbai University)",
-    "SPPU (Savitribai Phule Pune University)",
-    "IIT JEE Mains",
-    "NEET",
-    "Physics",
-    "Mathematics",
-    "Computer Science",
-    "UPSC Civil Services",
-    "GATE (General Aptitude Test for Engineers)",
-    "Python Programming",
-    "Web Development",
-    "CFA (Chartered Financial Analyst)"
-  ];
+  const [categories, setCategories] = useState([]);
+  const [selectedNotesCategory, setSelectedNotesCategory] = useState('');
+  const [newCategory, setNewCategory] = useState('');
 
-  const [selectedNotesCategory, setSelectedNotesCategory] = useState(notesCategory[0]);
+  // Fetch categories from the database
+  useEffect(() => {
+    fetch("http://localhost:5000/categories")
+      .then(res => res.json())
+      .then(data => {
+        setCategories(data);
+        if (data.length > 0) {
+          setSelectedNotesCategory(data[0].name); // Assuming categories have a 'name' property
+        }
+      })
+      .catch(error => console.error('Error fetching categories:', error));
+  }, []);
 
-  const handleChangeSelectedValue = (event) => {
-    setSelectedNotesCategory(event.target.value);
+  // Handle new category addition
+// Handle new category addition
+const handleAddCategory = () => {
+  if (newCategory.trim()) {
+    const newCategoryObj = { newCategory }; // Correctly structure the request
+
+    // Save new category to the database
+    fetch("http://localhost:5000/add-category", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCategoryObj) // Send newCategory as part of the object
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.message) {
+        // Fetch updated categories from the database after adding a new category
+        return fetch("http://localhost:5000/categories");
+      } else {
+        throw new Error('Error adding category');
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      setCategories(data); // Update the categories state with the latest data
+      setSelectedNotesCategory(data[data.length - 1].name); // Automatically select the new category
+      setNewCategory(''); // Clear the input field
+      alert("Category added successfully");
+    })
+    .catch(error => console.error('Error adding category:', error));
   }
+};
 
+
+  // Handle the form submission for uploading notes
   const handleNotesSubmit = (event) => {
     event.preventDefault();
     const form = event.target;
-
+  
     const notesTitle = form.notesTitle.value;
     const creator = form.creator.value;
     const imageURL = form.imageURL.value;
-    const category = form.categoryName.value;
+    const category = selectedNotesCategory;
     const notesDescription = form.notesDescription.value;
     const notesPDFURL = form.notesPDFURL.value;
     const price = form.price.value; 
-
+  
     const notesObj = {
-      notesTitle, creator, imageURL, category, notesDescription, notesPDFURL, price 
-    }
-
-    console.log(notesObj);
-
+      notesTitle,
+      creator,
+      imageURL,
+      category, // Ensure this is set correctly
+      notesDescription,
+      notesPDFURL,
+      price 
+    };
+  
+    console.log("Submitting notes:", notesObj); // Debug the object being sent
+  
     fetch("http://localhost:5000/upload-notes", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(notesObj)
-    }).then(res => res.json()).then(data => {
+    })
+    .then(res => res.json())
+    .then(data => {
       alert("Notes uploaded successfully");
       form.reset();
+    })
+    .catch((error) => {
+      console.error("Error uploading notes:", error);
     });
-  }
+  };
+  
 
   return (
     <div className='px-4 my-12'>
@@ -109,7 +151,7 @@ const UploadNotes = () => {
             />
           </div>
 
-          {/* category */}
+          {/* category and add new category */}
           <div className='lg:w-1/2'>
             <div className="mb-2 block">
               <Label 
@@ -117,12 +159,37 @@ const UploadNotes = () => {
                 value="Notes Category" 
               />
             </div> 
-            <Select id='inputState' name='categoryName' className='w-full rounded' value={selectedNotesCategory}
-            onChange={handleChangeSelectedValue}>
-              {
-                notesCategory.map((option) => <option key={option} value={option}>{option}</option>)
-              }
-            </Select>
+
+            {/* Category dropdown and add category input/button */}
+            <div className="flex items-center gap-2">
+              <Select
+                id='inputState'
+                name='categoryName'
+                className='w-full rounded'
+                value={selectedNotesCategory}
+                onChange={(e) => setSelectedNotesCategory(e.target.value)}
+              >
+                {
+                  categories.map((option) => <option key={option.name} value={option.name}>{option.name}</option>)
+                }
+              </Select>
+              
+              {/* New category input */}
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="New category"
+                className="border rounded px-2 py-1 flex-1"
+              />
+
+              {/* Add button */}
+              <Button
+                onClick={handleAddCategory}
+                className='bg-blue-700 text-white font-medium hover:bg-black transition-all ease-in duration-200 flex justify-center items-center'>
+                Add
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -180,10 +247,9 @@ const UploadNotes = () => {
         </div>
 
         <Button type='submit'  className='bg-blue-700 text-white px-6 py-2 font-medium hover:bg-black transition-all ease-in duration-200 flex justify-center items-center'>Upload Notes</Button>
-
       </form>
     </div>
   )
-}
+};
 
 export default UploadNotes;
